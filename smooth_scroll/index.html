@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>smooth_scroll</title>
+	<style>
+		section {
+			height: 1000px;
+		}
+
+		#section01 {
+			background-color: #c1c1fe;
+		}
+		#section02 {
+			background-color: #b7feb7;
+		}
+		#section03 {
+			background-color: #feb2b2;
+		}
+		#section04 {
+			background-color: #fceda0;
+		}
+	</style>
+	<script src="js/app.js" defer></script>
+</head>
+<body>
+	<nav id="nav">
+		<ul>
+			<li><a href="#section01">section01</a></li>
+			<li><a href="#section02">section02</a></li>
+			<li><a href="#section03">section03</a></li>
+			<li><span data-scroll="#section04">section04</span></li>
+		</ul>
+	</nav>
+	<section id="section01">section01のエリア</section>
+	<a href="#nav">上に戻る</a>
+	<section id="section02">section02のエリア</section>
+	<a href="#nav">上に戻る</a>
+	<section id="section03">section03のエリア</section>
+	<a href="#nav">上に戻る</a>
+	<section id="section04">section04のエリア</section>
+	<a href="#nav">上に戻る</a>
+</body>
+</html>
