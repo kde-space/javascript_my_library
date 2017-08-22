@@ -30,7 +30,7 @@ if (typeof Object.assign != 'function') {
 
 /**
  * イージング関数を取得
- * @param {String} name イージング名
+ * @param {string} name イージング名
  */
 var getEasingFunc = function(name) {
 	switch (name) {
@@ -190,37 +190,39 @@ var getEasingFunc = function(name) {
 			}
 			break;
 	}
-};
+}
 
 /**
  * スムーススクロール
  * @constructor
- * @param {Object} option オプション設定
+ * @param {object} option オプション設定
  */
 var SmScroll = function(option) {
 	this.option = {
 		trigger: 'a', // イベント発火となるセレクタ
 		attr: 'href', // リンク先を示す属性値
+		prefixOverRide: 'data-smScroll-',
 		duration: 600, // アニメーション完了までの時間（ミリ秒）
 		positioning: 0, // 遷移先位置の調整値
 		easing: 'easeOutQuart', // イージング名
 		beforeFunc: null, // スクロール開始前の実行する関数
 		afterFunc: null // スクロール完了後に実行する関数
 	};
-	this.webkitFlg   = null;
 	this.baseElement = null; 
 
 	// オプションのマージ
 	Object.assign(this.option, option);
-};
+	
+	// 最初のオプション値をコピー
+	this.firstOption = Object.assign({}, this.option);
+}
 
 /**
  * 初期設定・実行
  */
 SmScroll.prototype.init = function() {
-	var self       = this;
-	var selfOption = self.option;
-	var triggers   = document.querySelectorAll(selfOption.trigger);	
+	var self     = this;
+	var triggers = document.querySelectorAll(self.option.trigger);	
 	if (triggers.length < 1) {
 		return;
 	}
@@ -228,21 +230,44 @@ SmScroll.prototype.init = function() {
 	var posScroll = {
 		from: null,
 		to: null
-	};
+	}
+	
+	/**
+	 * 属性値からオプション設定を上書き
+	 * @param {Node} target 属性値を持った要素
+	 */
+	var overRideOptionFromAttr = function(target) {
+		var ary = ['duration', 'positioning', 'easing'];
+		var selfOption = self.option;
+		var prefixOverRide = selfOption.prefixOverRide;
+		
+		ary.forEach(function(v) {
+			if (target.getAttribute(prefixOverRide + v)) {
+				selfOption[v] = target.getAttribute(prefixOverRide + v);
+			}
+		});
+	}
 
 	// webkit系であれば位置情報の取得をbody要素から、その他はhtml要素から行う
-	self.webkitFlg   = navigator.userAgent.toLowerCase().match(/webkit/) ? true : false;
-	self.baseElement = self.webkitFlg ? document.body : document.documentElement;
+	self.baseElement = (function() {
+		var webkitFlg = navigator.userAgent.toLowerCase().match(/webkit/) ? true : false;
+		return webkitFlg ? document.body : document.documentElement;
+	})();
 	
 	// トリガークリック時のイベント設定
 	Object.keys(triggers).forEach(function(v) {
 		triggers[v].addEventListener('click', function(e) {
 			// ターゲット要素取得
-			var attrStr = this.getAttribute(selfOption.attr).substr('1');
+			var attrStr = this.getAttribute(self.option.attr).substr('1');
 			var target  = document.getElementById(attrStr);
 			if (attrStr === '' || !target) {
 				return;
 			}
+
+			e.preventDefault();
+
+			// 属性値からオプション設定を上書き
+			overRideOptionFromAttr(this);
 			
 			// 遷移先のスクロール位置調整の値設定
 			var positioning = (function(pos) {
@@ -252,9 +277,9 @@ SmScroll.prototype.init = function() {
 				} else {
 					return parseInt(pos, 10);
 				}
-			})(selfOption.positioning);
-			e.preventDefault();
-	
+			})(self.option.positioning);
+			
+			
 			// 現在地と遷移先のスクロール位置取得
 			posScroll.from = self.baseElement.scrollTop;
 			posScroll.to = (function() {
@@ -263,31 +288,29 @@ SmScroll.prototype.init = function() {
 			})();
 			
 			// スクロール開始前の関数が設定されていた場合、実行
-			if (typeof selfOption.beforeFunc === 'function') {
-				selfOption.beforeFunc();
+			if (typeof self.option.beforeFunc === 'function') {
+				self.option.beforeFunc();
 			}
-
+			
 			// スクロール実行
 			self.move(posScroll);
 		});
 	});
-};
-
+}
 
 /**
  * スクロール実行
- * @param {object} posScroll
- * 	posScroll.fromに初期位置、posScroll.toに終了位置を設定
+ * @param {object} offsetTop
+ * 	offsetTop.nowに現在地、offsetTop.tagetに遷移先のスクロール位置を設定
  */
 SmScroll.prototype.move = function(posScroll) {
 	var self          = this;
-	var selfOption    = self.option;
 	var startTime     = Date.now(); // 開始時間
-	var duration      = selfOption.duration; // 継続時間
+	var duration      = self.option.duration; // 継続時間
 	var posScrollFrom = posScroll.from; // 初期位置
 	var posScrollTo   = posScroll.to < 0 ? 0 : posScroll.to; // 終了位置（マイナスになるとアニメーション完了の時差が生じるのでマイナス時には0を代入）
 	var changeVal     = posScrollTo - posScrollFrom; // 変動値
-	var easing        = getEasingFunc(selfOption.easing); // イージング関数
+	var easing        = getEasingFunc(self.option.easing); // イージング関数
 	var myReq         = null; // requestAnimationFrameID用
 	
 	/**
@@ -300,10 +323,15 @@ SmScroll.prototype.move = function(posScroll) {
 		if (currentTime > duration) {
 			// タイミングによって最後の位置が変わるのでスクロール完了時に目的の位置にスクロールさせる
 			scrollTo(0, posScrollTo);
+			
 			cancelAnimationFrame(myReq);
+
+			// 上書きされたオプション設定を初期値に戻す
+			self.option = Object.assign({}, self.firstOption);
+			
 			// スクロール終了後の関数が設定されていた場合、実行
-			if (typeof selfOption.afterFunc === 'function') {
-				setTimeout(selfOption.afterFunc);
+			if (typeof self.option.afterFunc === 'function') {
+				setTimeout(self.option.afterFunc);
 			}
 			return;
 		}
@@ -315,7 +343,7 @@ SmScroll.prototype.move = function(posScroll) {
 	};
 	
 	myReq = requestAnimationFrame(scrollAnime);
-};
+}
 
 /**
  * 実行

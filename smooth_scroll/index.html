@@ -6,6 +6,32 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>smooth_scroll</title>
 	<style>
+		#nav ul {
+			list-style-type: none;
+			padding: 0;
+		}
+
+		#nav li:not(:last-child) {
+			margin-bottom: .5em;
+		}
+
+		#nav a, span {
+			display: inline-block;	
+			padding: .5em 1em;
+			border: 1px solid #bababa;
+			border-radius: 3px;	
+			box-shadow: 0 2px 3px rgba(#000, .15);
+			color: #000;
+			text-decoration: none;
+			cursor: pointer;
+			background-color: #ededed;
+		}
+
+		#nav a:hover,
+		#nav span:hover {
+			background-color: #fff;
+		}
+
 		section {
 			height: 1000px;
 		}
@@ -22,6 +48,11 @@
 		#section04 {
 			background-color: #fceda0;
 		}
+
+		.backToTop {
+			display: inline-block;
+			margin: 1em 0;
+		}
 	</style>
 	<script src="js/app.js" defer></script>
 </head>
@@ -29,18 +60,18 @@
 	<nav id="nav">
 		<ul>
 			<li><a href="#section01">section01</a></li>
-			<li><a href="#section02">section02</a></li>
-			<li><a href="#section03">section03</a></li>
-			<li><span data-scroll="#section04">section04</span></li>
+			<li><a href="#section02" data-smScroll-positioning="-100">section02<small>（カスタムデータ属性で遷移先のスクロール位置指定）</small></a></li>
+			<li><a href="#section03" data-smScroll-duration="2500" data-smScroll-easing="easeInOutExpo">section03<small>（カスタムデータ属性でdurationとイージング指定）</small></a></li>
+			<li><span data-scroll="#section04">section04<small>（新たなインスタンス生成）</small></span></li>
 		</ul>
 	</nav>
 	<section id="section01">section01のエリア</section>
-	<a href="#nav">上に戻る</a>
+	<a href="#nav" class="backToTop">↑ 上に戻る</a>
 	<section id="section02">section02のエリア</section>
-	<a href="#nav">上に戻る</a>
+	<a href="#nav" class="backToTop">↑ 上に戻る</a>
 	<section id="section03">section03のエリア</section>
-	<a href="#nav">上に戻る</a>
+	<a href="#nav" class="backToTop">↑ 上に戻る</a>
 	<section id="section04">section04のエリア</section>
-	<a href="#nav">上に戻る</a>
+	<a href="#nav" class="backToTop">↑ 上に戻る</a>
 </body>
 </html>
