@@ -201,7 +201,7 @@ var SmScroll = function(option) {
 	this.option = {
 		trigger: 'a', // イベント発火となるセレクタ
 		attr: 'href', // リンク先を示す属性値
-		prefixOverRide: 'data-smScroll-',
+		prefixOverRide: 'data-smScroll-', // オプションを上書きするカスタムデータ属性名
 		duration: 600, // アニメーション完了までの時間（ミリ秒）
 		positioning: 0, // 遷移先位置の調整値
 		easing: 'easeOutQuart', // イージング名
@@ -215,7 +215,7 @@ var SmScroll = function(option) {
 	
 	// 最初のオプション値をコピー
 	this.firstOption = Object.assign({}, this.option);
-}
+};
 
 /**
  * 初期設定・実行
@@ -230,7 +230,7 @@ SmScroll.prototype.init = function() {
 	var posScroll = {
 		from: null,
 		to: null
-	}
+	};
 	
 	/**
 	 * 属性値からオプション設定を上書き
@@ -246,7 +246,7 @@ SmScroll.prototype.init = function() {
 				selfOption[v] = target.getAttribute(prefixOverRide + v);
 			}
 		});
-	}
+	};
 
 	// webkit系であれば位置情報の取得をbody要素から、その他はhtml要素から行う
 	self.baseElement = (function() {
@@ -271,7 +271,7 @@ SmScroll.prototype.init = function() {
 			
 			// 遷移先のスクロール位置調整の値設定
 			var positioning = (function(pos) {
-				// 関数であれば実行し、それ以外は数値として返す				
+				// 関数であれば実行し、それ以外は数値として返す
 				if (typeof pos === 'function') {
 					return pos();
 				} else {
@@ -296,7 +296,7 @@ SmScroll.prototype.init = function() {
 			self.move(posScroll);
 		});
 	});
-}
+};
 
 /**
  * スクロール実行
@@ -343,7 +343,7 @@ SmScroll.prototype.move = function(posScroll) {
 	};
 	
 	myReq = requestAnimationFrame(scrollAnime);
-}
+};
 
 /**
  * 実行
