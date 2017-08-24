@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Object.assign() polyfill 
+ * Object.assign() polyfill
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
  */
 if (typeof Object.assign != 'function') {
@@ -39,7 +39,7 @@ var getEasingFunc = function(name) {
 				return c * t / d + b;
 			}
 			break;
-		
+
 		// easeIn
 		case 'easeInQuad':
 			return function(t, b, c, d) {
@@ -125,9 +125,9 @@ var getEasingFunc = function(name) {
 				t /= d;
 				t--;
 				return c * Math.sqrt(1 - t * t) + b;
-			} 
+			}
 			break;
-			
+
 		// easeInOut
 		case 'easeInOutQuad':
 			return function(t, b, c, d) {
@@ -208,11 +208,11 @@ var SmScroll = function(option) {
 		beforeFunc: null, // スクロール開始前の実行する関数
 		afterFunc: null // スクロール完了後に実行する関数
 	};
-	this.baseElement = null; 
+	this.baseElement = null;
 
 	// オプションのマージ
 	Object.assign(this.option, option);
-	
+
 	// 最初のオプション値をコピー
 	this.firstOption = Object.assign({}, this.option);
 };
@@ -222,7 +222,7 @@ var SmScroll = function(option) {
  */
 SmScroll.prototype.init = function() {
 	var self     = this;
-	var triggers = document.querySelectorAll(self.option.trigger);	
+	var triggers = document.querySelectorAll(self.option.trigger);
 	if (triggers.length < 1) {
 		return;
 	}
@@ -231,7 +231,7 @@ SmScroll.prototype.init = function() {
 		from: null,
 		to: null
 	};
-	
+
 	/**
 	 * 属性値からオプション設定を上書き
 	 * @param {Node} target 属性値を持った要素
@@ -240,7 +240,7 @@ SmScroll.prototype.init = function() {
 		var ary = ['duration', 'positioning', 'easing'];
 		var selfOption = self.option;
 		var prefixOverRide = selfOption.prefixOverRide;
-		
+
 		ary.forEach(function(v) {
 			if (target.getAttribute(prefixOverRide + v)) {
 				selfOption[v] = target.getAttribute(prefixOverRide + v);
@@ -253,7 +253,7 @@ SmScroll.prototype.init = function() {
 		var webkitFlg = navigator.userAgent.toLowerCase().match(/webkit/) ? true : false;
 		return webkitFlg ? document.body : document.documentElement;
 	})();
-	
+
 	// トリガークリック時のイベント設定
 	Object.keys(triggers).forEach(function(v) {
 		triggers[v].addEventListener('click', function(e) {
@@ -268,7 +268,7 @@ SmScroll.prototype.init = function() {
 
 			// 属性値からオプション設定を上書き
 			overRideOptionFromAttr(this);
-			
+
 			// 遷移先のスクロール位置調整の値設定
 			var positioning = (function(pos) {
 				// 関数であれば実行し、それ以外は数値として返す
@@ -278,20 +278,20 @@ SmScroll.prototype.init = function() {
 					return parseInt(pos, 10);
 				}
 			})(self.option.positioning);
-			
-			
+
+
 			// 現在地と遷移先のスクロール位置取得
 			posScroll.from = self.baseElement.scrollTop;
 			posScroll.to = (function() {
 				var clientRect = target.getBoundingClientRect();
 				return self.baseElement.scrollTop + clientRect.top + positioning;
 			})();
-			
+
 			// スクロール開始前の関数が設定されていた場合、実行
 			if (typeof self.option.beforeFunc === 'function') {
 				self.option.beforeFunc();
 			}
-			
+
 			// スクロール実行
 			self.move(posScroll);
 		});
@@ -312,36 +312,36 @@ SmScroll.prototype.move = function(posScroll) {
 	var changeVal     = posScrollTo - posScrollFrom; // 変動値
 	var easing        = getEasingFunc(self.option.easing); // イージング関数
 	var myReq         = null; // requestAnimationFrameID用
-	
+
 	/**
 	 * スクロールアニメーション
 	 */
 	var scrollAnime = function() {
 		var currentTime = Date.now() - startTime; // 経過時間
 		var pos         = posScrollFrom; // スクロール位置
-		
+
 		if (currentTime > duration) {
 			// タイミングによって最後の位置が変わるのでスクロール完了時に目的の位置にスクロールさせる
 			scrollTo(0, posScrollTo);
-			
+
 			cancelAnimationFrame(myReq);
 
 			// 上書きされたオプション設定を初期値に戻す
 			self.option = Object.assign({}, self.firstOption);
-			
+
 			// スクロール終了後の関数が設定されていた場合、実行
 			if (typeof self.option.afterFunc === 'function') {
 				setTimeout(self.option.afterFunc);
 			}
 			return;
 		}
-		
+
 		// スクロール位置設定
 		pos = easing(currentTime, posScrollFrom, changeVal, duration);
 		scrollTo(0, pos);
 		myReq = requestAnimationFrame(scrollAnime);
 	};
-	
+
 	myReq = requestAnimationFrame(scrollAnime);
 };
 
